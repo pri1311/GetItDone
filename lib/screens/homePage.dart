@@ -44,27 +44,6 @@ class _HomePageState extends State<HomePage> {
     },
   ];
 
-  var projects = [
-    // {
-    //   "name": "Crunch Website",
-    //   "description":
-    //       "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
-    //   "deadline": "April 27",
-    // },
-    // {
-    //   "name": "Crunch Website",
-    //   "description":
-    //       "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
-    //   "deadline": "April 27",
-    // },
-    // {
-    //   "name": "Crunch Website",
-    //   "description":
-    //       "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
-    //   "deadline": "April 27",
-    // },
-  ];
-
   gettodos() {
     FirebaseFirestore.instance
         .collection('project')
@@ -72,14 +51,6 @@ class _HomePageState extends State<HomePage> {
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {
         if (doc['team'].contains(useremail)) {
-          setState(() {
-            print(doc['name']);
-            projects.add({
-              'name': doc['name'],
-              'description': doc['description'],
-              'deadline': doc['deadline']
-            });
-          });
           var tasks = doc['Tasks'];
           for (var t in tasks) {
             if (t['assigned'].contains(useremail)) {
@@ -186,39 +157,54 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             Container(
-                              alignment: Alignment.center,
-                              margin: EdgeInsets.all(15),
-                              height: 0.3 * size.height,
-                              width: double.infinity,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: projects.length,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                      height: 0.3 * size.height,
-                                      width: 0.4 * size.height,
-                                      margin: EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.5),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Container(
-                                        margin: EdgeInsets.all(10),
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              projects[index]['name'],
-                                            ),
-                                            Text(
-                                              projects[index]['description'],
-                                              softWrap: true,
-                                            ),
-                                          ],
-                                        ),
-                                      ));
-                                },
-                              ),
-                            ),
+                                alignment: Alignment.center,
+                                margin: EdgeInsets.all(15),
+                                height: 0.3 * size.height,
+                                width: double.infinity,
+                                child: StreamBuilder(
+                                    stream: FirebaseFirestore.instance
+                                        .collection('project')
+                                        .snapshots(),
+                                    builder: (context, snapshots) {
+                                      return ListView.builder(
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount: snapshots.data.docs.length,
+                                          itemBuilder: (context, index) {
+                                            if (snapshots
+                                                .data.docs[index]['team']
+                                                .contains(useremail)) {
+                                              return Container(
+                                                  height: 0.3 * size.height,
+                                                  width: 0.4 * size.height,
+                                                  margin: EdgeInsets.all(10),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white
+                                                        .withOpacity(0.5),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                  ),
+                                                  child: Container(
+                                                    margin: EdgeInsets.all(10),
+                                                    child: Column(
+                                                      children: [
+                                                        Text(
+                                                          snapshots.data
+                                                                  .docs[index]
+                                                              ['name'],
+                                                        ),
+                                                        Text(
+                                                          snapshots.data
+                                                                  .docs[index]
+                                                              ['description'],
+                                                          softWrap: true,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ));
+                                            }
+                                          });
+                                    })),
                           ],
                         ),
                         SizedBox(
@@ -234,79 +220,106 @@ class _HomePageState extends State<HomePage> {
                         Container(
                           padding: EdgeInsets.all(20),
                           height: 0.6 * size.height,
-                          child: ListView.builder(
-                            itemCount: todos.length,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 10,
-                                  horizontal: 15,
-                                ),
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey[300],
-                                      blurRadius: 5.0,
-                                      offset: Offset(
-                                        5, 5, // Move to bottom 10 Vertically
-                                      ),
-                                    ),
-                                  ],
-                                  color: Colors.white,
-                                ),
-                                height: 0.15 * size.height,
-                                margin: EdgeInsets.only(bottom: 15),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      todos[index]['task'],
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1.1,
-                                        color: Color(0xFF24245b),
-                                      ),
-                                    ),
-                                    Text(
-                                      todos[index]['project'],
-                                      style: TextStyle(
-                                        color: Colors.grey[500],
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 0.02 * size.height,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        todos[index]['status'] == "doing"
-                                            ? Container(
-                                                padding: EdgeInsets.all(3),
-                                                decoration: BoxDecoration(
-                                                  color: Color(0xFF17c3b2),
-                                                ),
-                                                child: Text("Inprogress"),
-                                              )
-                                            : Container(
-                                                padding: EdgeInsets.all(3),
-                                                decoration: BoxDecoration(
-                                                  color: Color(0xFFfe6d73),
-                                                ),
-                                                child: Text("ToDo"),
-                                              ),
-                                        Text(
-                                          todos[index]['deadline'],
-                                          style: TextStyle(
-                                            color: Colors.grey,
+                          child: StreamBuilder(
+                            stream: FirebaseFirestore.instance
+                                .collection('project')
+                                .snapshots(),
+                            builder: (context, snapshots) {
+                              return ListView.builder(
+                                itemCount: snapshots.data.docs.length,
+                                itemBuilder: (context, index) {
+                                  if (snapshots.data.docs[index]['team']
+                                      .contains(useremail)) {
+                                    var tasks =
+                                        snapshots.data.docs[index]['Tasks'];
+                                    for (var t in tasks) {
+                                      if (t['assigned'].contains(useremail)) {
+                                        return Container(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 10,
+                                            horizontal: 15,
                                           ),
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                ),
+                                          decoration: BoxDecoration(
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey[300],
+                                                blurRadius: 5.0,
+                                                offset: Offset(
+                                                  5,
+                                                  5, // Move to bottom 10 Vertically
+                                                ),
+                                              ),
+                                            ],
+                                            color: Colors.white,
+                                          ),
+                                          height: 0.15 * size.height,
+                                          margin: EdgeInsets.only(bottom: 15),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                t['name'],
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 1.1,
+                                                  color: Color(0xFF24245b),
+                                                ),
+                                              ),
+                                              Text(
+                                                snapshots.data.docs[index]
+                                                    ['name'],
+                                                style: TextStyle(
+                                                  color: Colors.grey[500],
+                                                  fontSize: 15,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 0.02 * size.height,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  t['status'] == "doing"
+                                                      ? Container(
+                                                          padding:
+                                                              EdgeInsets.all(3),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Color(
+                                                                0xFF17c3b2),
+                                                          ),
+                                                          child: Text(
+                                                              "Inprogress"),
+                                                        )
+                                                      : Container(
+                                                          padding:
+                                                              EdgeInsets.all(3),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Color(
+                                                                0xFFfe6d73),
+                                                          ),
+                                                          child: Text("ToDo"),
+                                                        ),
+                                                  Text(
+                                                    t['deadline'],
+                                                    style: TextStyle(
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  }
+                                },
                               );
                             },
                           ),
