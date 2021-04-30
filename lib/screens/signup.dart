@@ -1,47 +1,67 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:getitdone/components/roundedbutton.dart';
-import 'package:getitdone/components/textdetails.dart';
-import 'package:getitdone/screens/authScreen.dart';
-import 'package:getitdone/screens/homePage.dart';
-import 'package:getitdone/screens/signup.dart';
+import 'dart:convert';
 
-class LoginPage extends StatefulWidget {
+import 'package:getitdone/components/textdetails.dart';
+import 'package:getitdone/screens/homePage.dart';
+import 'package:getitdone/screens/login.dart';
+
+class Registeration extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _RegisterationState createState() => _RegisterationState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  String password, email;
-  bool newuser;
-  int otp;
+class _RegisterationState extends State<Registeration> {
+  String name;
+  String username;
+  String password, confirm_pass, email, otp1, otp2;
+  String number;
+  FirebaseAuth _auth = FirebaseAuth.instance;
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
+  final TextEditingController _pass = TextEditingController();
+  final TextEditingController _confirmPass = TextEditingController();
+
+  //function to validate and save user form
+  Future<void> _savingData() async {
+    final validation = _form.currentState.validate();
+    if (!validation) {
+      return;
+    }
+    _form.currentState.save();
+  }
 
   checkAuthentication() async {
-    _auth.authStateChanges().listen((user) {
+    _auth.authStateChanges().listen((user) async {
       if (user != null) {
         Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomePage(),
-          ),
-        );
+            context, MaterialPageRoute(builder: (context) => HomePage()));
       }
     });
   }
 
-  login() async {
+  @override
+  void initState() {
+    super.initState();
+    this.checkAuthentication();
+  }
+
+  signUp() async {
     if (_form.currentState.validate()) {
       _form.currentState.save();
 
       try {
-        await _auth.signInWithEmailAndPassword(
+        UserCredential user = await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
+        if (user != null) {
+          // UserUpdateInfo updateuser = UserUpdateInfo();
+          // updateuser.displayName = _name;
+          //  user.updateProfile(updateuser);
+          await _auth.currentUser.updateProfile(displayName: name);
+          // await Navigator.pushReplacementNamed(context,"/") ;
+
+        }
       } catch (e) {
         showError(e.message);
         print(e);
@@ -68,11 +88,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
-  void initState() {
-    this.checkAuthentication();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Container(
       child: Scaffold(
@@ -80,6 +95,7 @@ class _LoginPageState extends State<LoginPage> {
           width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20.0),
+            // color: Colors.transparent,
           ),
           child: Padding(
             padding: EdgeInsets.all(20.0),
@@ -89,15 +105,13 @@ class _LoginPageState extends State<LoginPage> {
                   height: 50.0,
                 ),
                 SizedBox(
-                  height: 100,
                   child: TypewriterAnimatedTextKit(
                     isRepeatingAnimation: false,
                     speed: Duration(milliseconds: 150),
-                    text: ["Hello there.\nWelcome back!"],
+                    text: ["Get on board!"],
                     textStyle: TextStyle(
                       fontSize: 40.0,
                       color: Colors.black,
-                      fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.start,
                   ),
@@ -110,11 +124,11 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     children: <Widget>[
                       Padding(
-                        padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+                        padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
                         child: TextDetails(
-                          text: 'Email Address',
+                          text: 'Name',
                           onSaved: (String value) {
-                            email = value;
+                            name = value;
                           },
                           validator: (value) {
                             if (value.isEmpty) {
@@ -124,9 +138,29 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         ),
                       ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      TextDetails(
+                        text: 'E-mail',
+                        val: false,
+                        onSaved: (String value) {
+                          email = value;
+                        },
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Cannot Be Empty';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
                       TextDetails(
                         text: 'Password',
                         val: true,
+                        controller: _pass,
                         onSaved: (String value) {
                           password = value;
                         },
@@ -140,22 +174,10 @@ class _LoginPageState extends State<LoginPage> {
                           return null;
                         },
                       ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20.0, bottom: 5.0),
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      'Forgot your Password?',
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[600],
+                      SizedBox(
+                        height: 10.0,
                       ),
-                    ),
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -163,18 +185,15 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 RoundedButton(
                   colour: Color(0xFF4fbbcc),
-                  title: 'Log In',
-                  onPressed: login,
+                  title: 'Sign Up',
+                  onPressed: signUp,
                 ),
                 RoundedButton(
                   colour: Color(0xFF3b8c99),
-                  title: "Don't have an account?"
-                      " Sign up instead",
+                  title: "I am already a member",
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Registeration()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => LoginPage()));
                   },
                 ),
               ],
@@ -183,5 +202,12 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pass.dispose();
+    _confirmPass.dispose();
+    super.dispose();
   }
 }
