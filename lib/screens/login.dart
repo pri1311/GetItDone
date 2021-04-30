@@ -74,110 +74,116 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Scaffold(
-        body: Container(
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: ListView(
-              children: <Widget>[
-                SizedBox(
-                  height: 50.0,
-                ),
-                SizedBox(
-                  height: 100,
-                  child: TypewriterAnimatedTextKit(
-                    isRepeatingAnimation: false,
-                    speed: Duration(milliseconds: 150),
-                    text: ["Hello there.\nWelcome back!"],
-                    textStyle: TextStyle(
-                      fontSize: 40.0,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.start,
+    return WillPopScope(
+      onWillPop: () {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => authPage()));
+      },
+      child: Container(
+        child: Scaffold(
+          body: Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: ListView(
+                children: <Widget>[
+                  SizedBox(
+                    height: 50.0,
                   ),
-                ),
-                SizedBox(
-                  height: 50.0,
-                ),
-                Form(
-                  key: _form,
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-                        child: TextDetails(
-                          text: 'Email Address',
+                  SizedBox(
+                    height: 100,
+                    child: TypewriterAnimatedTextKit(
+                      isRepeatingAnimation: false,
+                      speed: Duration(milliseconds: 150),
+                      text: ["Hello there.\nWelcome back!"],
+                      textStyle: TextStyle(
+                        fontSize: 40.0,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.start,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 50.0,
+                  ),
+                  Form(
+                    key: _form,
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+                          child: TextDetails(
+                            text: 'Email Address',
+                            onSaved: (String value) {
+                              email = value;
+                            },
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return 'Cannot Be Empty';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        TextDetails(
+                          text: 'Password',
+                          val: true,
                           onSaved: (String value) {
-                            email = value;
+                            password = value;
                           },
                           validator: (value) {
                             if (value.isEmpty) {
-                              return 'Cannot Be Empty';
+                              return "Please Enter New Password";
+                            }
+                            if (value.length < 8) {
+                              return "Password must be at least 8 characters long";
                             }
                             return null;
                           },
                         ),
-                      ),
-                      TextDetails(
-                        text: 'Password',
-                        val: true,
-                        onSaved: (String value) {
-                          password = value;
-                        },
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return "Please Enter New Password";
-                          }
-                          if (value.length < 8) {
-                            return "Password must be at least 8 characters long";
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20.0, bottom: 5.0),
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      'Forgot your Password?',
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[600],
+                  Padding(
+                    padding: EdgeInsets.only(top: 20.0, bottom: 5.0),
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: Text(
+                        'Forgot your Password?',
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 30.0,
-                ),
-                RoundedButton(
-                  colour: Color(0xFF4fbbcc),
-                  title: 'Log In',
-                  onPressed: login,
-                ),
-                RoundedButton(
-                  colour: Color(0xFF3b8c99),
-                  title: "Don't have an account?"
-                      " Sign up instead",
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Registeration()));
-                  },
-                ),
-              ],
+                  SizedBox(
+                    height: 30.0,
+                  ),
+                  RoundedButton(
+                    colour: Color(0xFF4fbbcc),
+                    title: 'Log In',
+                    onPressed: login,
+                  ),
+                  RoundedButton(
+                    colour: Color(0xFF3b8c99),
+                    title: "Don't have an account?"
+                        " Sign up instead",
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Registeration()));
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
