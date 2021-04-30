@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:getitdone/screens/authScreen.dart';
 import 'package:getitdone/screens/login.dart';
+import 'package:getitdone/screens/newProject.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class HomePage extends StatefulWidget {
@@ -106,6 +107,23 @@ class _HomePageState extends State<HomePage> {
           title: Text("GetItDone!"),
           backgroundColor: Color(0xFF45a4b3),
           elevation: 0,
+          actions: [
+            IconButton(
+              icon: Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => newProject(),
+                  ),
+                );
+              },
+              color: Colors.white,
+            ),
+          ],
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -128,6 +146,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             Container(
+                              alignment: Alignment.center,
                               margin: EdgeInsets.all(15),
                               height: 0.3 * size.height,
                               width: double.infinity,
@@ -139,7 +158,10 @@ class _HomePageState extends State<HomePage> {
                                       height: 0.3 * size.height,
                                       width: 0.4 * size.height,
                                       margin: EdgeInsets.all(10),
-                                      color: Colors.white.withOpacity(0.5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.5),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
                                       child: Container(
                                         margin: EdgeInsets.all(10),
                                         child: Column(
@@ -247,6 +269,19 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               );
                             },
+                          ),
+                        ),
+                        RaisedButton(
+                          padding: EdgeInsets.fromLTRB(70, 10, 70, 10),
+                          onPressed: signOut,
+                          child: Text('Signout',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold)),
+                          color: Colors.orange,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
                           ),
                         ),
                         SizedBox(

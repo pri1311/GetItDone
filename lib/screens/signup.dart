@@ -1,4 +1,5 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:getitdone/components/roundedbutton.dart';
@@ -47,6 +48,14 @@ class _RegisterationState extends State<Registeration> {
     this.checkAuthentication();
   }
 
+  CollectionReference users = FirebaseFirestore.instance.collection('user');
+  Future<void> createUser() {
+    return users.add({
+      'name': name,
+      'email': email,
+    }).then((value) => print("User Added"));
+  }
+
   signUp() async {
     if (_form.currentState.validate()) {
       _form.currentState.save();
@@ -60,7 +69,9 @@ class _RegisterationState extends State<Registeration> {
           //  user.updateProfile(updateuser);
           await _auth.currentUser.updateProfile(displayName: name);
           // await Navigator.pushReplacementNamed(context,"/") ;
+          //
 
+          createUser();
         }
       } catch (e) {
         showError(e.message);
