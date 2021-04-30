@@ -4,6 +4,7 @@ import 'package:getitdone/screens/authScreen.dart';
 import 'package:getitdone/screens/login.dart';
 import 'package:getitdone/screens/newProject.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class _HomePageState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User user;
   bool isloggedin = false;
+  String username, useremail;
 
   var todos = [
     {
@@ -43,31 +45,68 @@ class _HomePageState extends State<HomePage> {
   ];
 
   var projects = [
-    {
-      "name": "Crunch Website",
-      "description":
-          "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
-      "deadline": "April 27",
-    },
-    {
-      "name": "Crunch Website",
-      "description":
-          "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
-      "deadline": "April 27",
-    },
-    {
-      "name": "Crunch Website",
-      "description":
-          "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
-      "deadline": "April 27",
-    },
+    // {
+    //   "name": "Crunch Website",
+    //   "description":
+    //       "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
+    //   "deadline": "April 27",
+    // },
+    // {
+    //   "name": "Crunch Website",
+    //   "description":
+    //       "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
+    //   "deadline": "April 27",
+    // },
+    // {
+    //   "name": "Crunch Website",
+    //   "description":
+    //       "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
+    //   "deadline": "April 27",
+    // },
   ];
+
+  gettodos() {
+    FirebaseFirestore.instance
+        .collection('project')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        if (doc['team'].contains(useremail)) {
+          setState(() {
+            print(doc['name']);
+            projects.add({
+              'name': doc['name'],
+              'description': doc['description'],
+              'deadline': doc['deadline']
+            });
+          });
+          var tasks = doc['Tasks'];
+          for (var t in tasks) {
+            if (t['assigned'].contains(useremail)) {
+              setState(() {
+                todos.add({
+                  'task': t['name'],
+                  'status': t['status'],
+                  'deadline': t['deadline'],
+                  'description': t['description'],
+                  'project': doc['name'],
+                });
+              });
+            }
+          }
+        }
+      });
+    });
+  }
 
   checkAuthentification() async {
     _auth.authStateChanges().listen((user) {
       if (user == null) {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => LoginPage()));
+      } else {
+        useremail = user.email;
+        username = user.displayName;
       }
     });
   }
@@ -97,6 +136,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     this.checkAuthentification();
     this.getUser();
+    this.gettodos();
   }
 
   @override
