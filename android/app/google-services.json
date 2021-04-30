@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "137479972332",
+    "project_id": "getitdone-6e494",
+    "storage_bucket": "getitdone-6e494.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:137479972332:android:3504108496288c2b738cc9",
+        "android_client_info": {
+          "package_name": "com.example.getitdone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "137479972332-sc8vo0cf2ij7oohivhbekleostno8dif.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCV0s76yB8J6E84Pvm4AfeYhSk_Cah89-s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "137479972332-sc8vo0cf2ij7oohivhbekleostno8dif.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
