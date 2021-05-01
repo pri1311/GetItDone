@@ -1,4 +1,3 @@
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,7 +7,6 @@ import 'package:getitdone/components/roundedbutton.dart';
 import 'package:getitdone/components/textdetails.dart';
 import 'package:getitdone/screens/authScreen.dart';
 import 'package:getitdone/screens/homePage.dart';
-import 'package:getitdone/screens/signup.dart';
 
 class newProject extends StatefulWidget {
   @override

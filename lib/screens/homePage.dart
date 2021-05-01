@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:getitdone/screens/authScreen.dart';
 import 'package:getitdone/screens/login.dart';
 import 'package:getitdone/screens/newProject.dart';
+import 'package:getitdone/screens/projectScreen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:progress_indicator/progress_indicator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,59 +17,6 @@ class _HomePageState extends State<HomePage> {
   User user;
   bool isloggedin = false;
   String username, useremail;
-
-  var todos = [
-    {
-      "task": "Website Design",
-      "description":
-          "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
-      "status": "doing",
-      "project": "Crunch chat website",
-      "deadline": "April 27",
-    },
-    {
-      "task": "Flutter authentication bug",
-      "description":
-          "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
-      "status": "todo",
-      "project": "Productivity app",
-      "deadline": "May 27",
-    },
-    {
-      "task": "code review",
-      "description":
-          "What is Lorem Ipsum Lorem Ipsum is simply dummy text of the printing and typesetting",
-      "status": "todo",
-      "project": "Crunch chat website",
-      "deadline": "May 1",
-    },
-  ];
-
-  gettodos() {
-    FirebaseFirestore.instance
-        .collection('project')
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        if (doc['team'].contains(useremail)) {
-          var tasks = doc['Tasks'];
-          for (var t in tasks) {
-            if (t['assigned'].contains(useremail)) {
-              setState(() {
-                todos.add({
-                  'task': t['name'],
-                  'status': t['status'],
-                  'deadline': t['deadline'],
-                  'description': t['description'],
-                  'project': doc['name'],
-                });
-              });
-            }
-          }
-        }
-      });
-    });
-  }
 
   checkAuthentification() async {
     _auth.authStateChanges().listen((user) {
@@ -107,7 +55,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     this.checkAuthentification();
     this.getUser();
-    this.gettodos();
   }
 
   @override
@@ -173,35 +120,101 @@ class _HomePageState extends State<HomePage> {
                                             if (snapshots
                                                 .data.docs[index]['team']
                                                 .contains(useremail)) {
-                                              return Container(
-                                                  height: 0.3 * size.height,
-                                                  width: 0.4 * size.height,
-                                                  margin: EdgeInsets.all(10),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white
-                                                        .withOpacity(0.5),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                  ),
-                                                  child: Container(
-                                                    margin: EdgeInsets.all(10),
-                                                    child: Column(
-                                                      children: [
-                                                        Text(
-                                                          snapshots.data
-                                                                  .docs[index]
-                                                              ['name'],
-                                                        ),
-                                                        Text(
-                                                          snapshots.data
-                                                                  .docs[index]
-                                                              ['description'],
-                                                          softWrap: true,
-                                                        ),
-                                                      ],
+                                              var per = (snapshots.data
+                                                          .docs[index]['done'] /
+                                                      snapshots.data.docs[index]
+                                                          ['total']) *
+                                                  100;
+                                              return InkWell(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          projectScreen(
+                                                              snapshots.data
+                                                                  .docs[index]),
                                                     ),
-                                                  ));
+                                                  );
+                                                },
+                                                child: Container(
+                                                    height: 0.3 * size.height,
+                                                    width: 0.4 * size.height,
+                                                    margin: EdgeInsets.all(10),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(0.5),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                    ),
+                                                    child: Container(
+                                                      margin:
+                                                          EdgeInsets.all(10),
+                                                      padding:
+                                                          EdgeInsets.all(15),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceEvenly,
+                                                        children: [
+                                                          Text(
+                                                            snapshots.data
+                                                                    .docs[index]
+                                                                ['name'],
+                                                            style: TextStyle(
+                                                              fontSize: 20,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              letterSpacing:
+                                                                  1.1,
+                                                              color: Color(
+                                                                  0xFF24245b),
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            snapshots.data
+                                                                    .docs[index]
+                                                                ['description'],
+                                                            softWrap: true,
+                                                            style: TextStyle(
+                                                              fontSize: 15,
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            alignment: Alignment
+                                                                .bottomCenter,
+                                                            child: BarProgress(
+                                                              percentage: per,
+                                                              backColor:
+                                                                  Colors.white,
+                                                              gradient:
+                                                                  LinearGradient(
+                                                                      colors: [
+                                                                    Color(0xFF24245b)
+                                                                        .withOpacity(
+                                                                            0.8),
+                                                                    Color(
+                                                                        0xFF24245b),
+                                                                  ]),
+                                                              showPercentage:
+                                                                  true,
+                                                              textStyle: TextStyle(
+                                                                  color: Color(
+                                                                      0xFF24245b),
+                                                                  fontSize: 10),
+                                                              stroke: 20,
+                                                              round: true,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    )),
+                                              );
                                             }
                                           });
                                     })),
@@ -230,94 +243,140 @@ class _HomePageState extends State<HomePage> {
                                 itemBuilder: (context, index) {
                                   if (snapshots.data.docs[index]['team']
                                       .contains(useremail)) {
-                                    var tasks =
-                                        snapshots.data.docs[index]['Tasks'];
-                                    for (var t in tasks) {
-                                      if (t['assigned'].contains(useremail)) {
-                                        return Container(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: 10,
-                                            horizontal: 15,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.grey[300],
-                                                blurRadius: 5.0,
-                                                offset: Offset(
-                                                  5,
-                                                  5, // Move to bottom 10 Vertically
-                                                ),
+                                    return ListView.builder(
+                                        shrinkWrap: true,
+                                        physics: ScrollPhysics(),
+                                        itemCount: snapshots
+                                            .data.docs[index]['Tasks'].length,
+                                        itemBuilder: (context, index2) {
+                                          if (snapshots.data.docs[index]['team']
+                                                  .contains(useremail) &&
+                                              snapshots
+                                                  .data
+                                                  .docs[index]['Tasks'][index2]
+                                                      ['assigned']
+                                                  .contains(useremail)) {
+                                            return Container(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 10,
+                                                horizontal: 15,
                                               ),
-                                            ],
-                                            color: Colors.white,
-                                          ),
-                                          height: 0.15 * size.height,
-                                          margin: EdgeInsets.only(bottom: 15),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                t['name'],
-                                                style: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                  letterSpacing: 1.1,
-                                                  color: Color(0xFF24245b),
-                                                ),
-                                              ),
-                                              Text(
-                                                snapshots.data.docs[index]
-                                                    ['name'],
-                                                style: TextStyle(
-                                                  color: Colors.grey[500],
-                                                  fontSize: 15,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 0.02 * size.height,
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  t['status'] == "doing"
-                                                      ? Container(
-                                                          padding:
-                                                              EdgeInsets.all(3),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Color(
-                                                                0xFF17c3b2),
-                                                          ),
-                                                          child: Text(
-                                                              "Inprogress"),
-                                                        )
-                                                      : Container(
-                                                          padding:
-                                                              EdgeInsets.all(3),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Color(
-                                                                0xFFfe6d73),
-                                                          ),
-                                                          child: Text("ToDo"),
-                                                        ),
-                                                  Text(
-                                                    t['deadline'],
-                                                    style: TextStyle(
-                                                      color: Colors.grey,
+                                              decoration: BoxDecoration(
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.grey[300],
+                                                    blurRadius: 5.0,
+                                                    offset: Offset(
+                                                      5,
+                                                      5, // Move to bottom 10 Vertically
                                                     ),
                                                   ),
                                                 ],
-                                              )
-                                            ],
-                                          ),
-                                        );
-                                      }
-                                    }
+                                                color: Colors.white,
+                                              ),
+                                              height: 0.15 * size.height,
+                                              margin:
+                                                  EdgeInsets.only(bottom: 15),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    snapshots.data.docs[index]
+                                                            ['Tasks'][index2]
+                                                        ['name'],
+                                                    style: TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      letterSpacing: 1.1,
+                                                      color: Color(0xFF24245b),
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    snapshots.data.docs[index]
+                                                        ['name'],
+                                                    style: TextStyle(
+                                                      color: Colors.grey[500],
+                                                      fontSize: 15,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 0.02 * size.height,
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      snapshots.data.docs[index]
+                                                                          ['Tasks']
+                                                                      [index2]
+                                                                  ['status'] ==
+                                                              "doing"
+                                                          ? Container(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(3),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .yellow,
+                                                              ),
+                                                              child: Text(
+                                                                  "Inprogress"),
+                                                            )
+                                                          : snapshots.data.docs[index]
+                                                                              [
+                                                                              'Tasks']
+                                                                          [
+                                                                          index2]
+                                                                      [
+                                                                      'status'] ==
+                                                                  "todo"
+                                                              ? Container(
+                                                                  padding:
+                                                                      EdgeInsets
+                                                                          .all(
+                                                                              3),
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    color: Color(
+                                                                        0xFFfe6d73),
+                                                                  ),
+                                                                  child: Text(
+                                                                      "ToDo"),
+                                                                )
+                                                              : Container(
+                                                                  padding:
+                                                                      EdgeInsets
+                                                                          .all(
+                                                                              3),
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    color: Color(
+                                                                        0xFF17c3b2),
+                                                                  ),
+                                                                  child: Text(
+                                                                      "Done"),
+                                                                ),
+                                                      Text(
+                                                        snapshots.data.docs[
+                                                                        index]
+                                                                    ['Tasks']
+                                                                [index2]
+                                                            ['deadline'],
+                                                        style: TextStyle(
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          }
+                                        });
                                   }
                                 },
                               );
@@ -332,7 +391,7 @@ class _HomePageState extends State<HomePage> {
                                   color: Colors.white,
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.bold)),
-                          color: Colors.orange,
+                          color: Color(0xFF24245b),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),
                           ),
